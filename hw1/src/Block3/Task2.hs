@@ -1,5 +1,6 @@
 module Block3.Task2
-  ( Town(..)
+  (
+    Town(..)
   , Castle(..)
   , Church(..)
   , Library(..)
@@ -40,7 +41,7 @@ makeHouse n
 
 buildCastle :: Town -> Maybe Town
 buildCastle town = case town of
-  Town{ castle = Nothing } -> Just town { castle = Just (Castle False False) }
+  Town{ castle = Nothing } -> Just town{ castle = Just (Castle False False) }
   _                        -> Nothing
 
 buildSpecialBuilding :: Either Church Library -> Town -> Maybe Town

@@ -21,7 +21,7 @@ mergeSort l
       (left, right) = splitAt mid l
       merge :: Ord a => [a] -> [a] -> [a]
       merge [] ys     = ys
-      merge (x:xs) ys = beforeX ++ x : merge afterX xs
+      merge (x : xs) ys = beforeX ++ x : merge afterX xs
         where
           pos' = findIndex (x <=) ys
           pos = fromMaybe len pos'

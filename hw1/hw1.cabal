@@ -6,9 +6,9 @@ description:         Task 1 for FP ITMO course
 homepage:            https://github.com//fp-homework/tree/master/hw1#readme
 license:             MIT
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2019 Author name here
+author:              Denis Vaksman
+maintainer:          dr.denisv2016@yandex.ru
+copyright:           2019 Denis Vaksman
 
 category:            Web
 build-type:          Simple
@@ -28,6 +28,11 @@ library
                        Block3.Task2
                        Block3.Task3
                        Block3.Task4
+                       Block4.Task1
+                       Block4.Task2
+                       Block5.Task1
+                       Block5.Task2
+                       Block5.Task3
   ghc-options:         -Wall
   build-depends:       base >= 4.9 && < 5, random
   default-language:    Haskell2010

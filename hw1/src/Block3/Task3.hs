@@ -1,5 +1,6 @@
 module Block3.Task3
-  ( Nat(..)
+  (
+    Nat(..)
   , add
   , mul
   , sub
