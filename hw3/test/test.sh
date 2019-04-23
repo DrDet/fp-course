@@ -1,8 +1,7 @@
 a='aaa $1 bb'
-# a equals to 'aaa $1 bb' string
-b=$2
-# b equals to the second passed argument
-a=asdfh\\a\$
-# a equals to 'b'
+
+b=$2plainText$1'hel
+lo'$a
+
 c=$b
-# c equals to the second passed argument
+c=$a$a
