@@ -10,8 +10,10 @@ import           Data.IORef             (IORef, readIORef, writeIORef)
 import           Data.Map.Strict        (Map, insert, lookup)
 import           Data.Maybe             (fromMaybe)
 import           Parser                 (Expr (..), Sequence (..),
-                                         Statement (..), Variable (..))
+                                         Statement (..), Variable (..),
+                                         variable)
 import           Prelude                hiding (lookup)
+import           Text.Megaparsec        (runParser)
 
 newtype Env = Env
   { vars :: IORef (Map String String)
@@ -42,3 +44,16 @@ expandExprList envVars (expr:rest) = expanded ++ expandExprList envVars rest
       (VariableAccess (Variable varName))    -> fromMaybe "" el
         where el = lookup varName envVars
       (SingleQuotedText s)                   -> s
+      (DoubleQuotedText s)                   -> expandDoubleQuoted s ""
+        where
+          expandDoubleQuoted [] res = res
+          expandDoubleQuoted (c:restStr) res
+            | c == '$'  = case runParser variable "" restStr of
+                Right (Variable varName) -> expandDoubleQuoted (drop n restStr)
+                                                               (res ++ varValue)
+                  where
+                    n        = length varName
+                    el       = lookup varName envVars
+                    varValue = fromMaybe "" el
+                Left _                -> expandDoubleQuoted restStr (res ++ [c])
+            | otherwise = expandDoubleQuoted restStr (res ++ [c])

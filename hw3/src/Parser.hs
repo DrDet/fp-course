@@ -6,14 +6,19 @@ module Parser
   , Statement(..)
   , Sequence(..)
   , bashProgram
+  , variable
   ) where
 
--- import Control.Monad (void)
--- import Control.Monad.Combinators.Expr -- from parser-combinators
-import Data.Void (Void)
-import Text.Megaparsec --(parseTest, Parsec, between, (<|>), some, many, empty, try, eof)
-import Text.Megaparsec.Char --(space1, alphaNumChar, char, asciiChar, digitChar)
-import qualified Text.Megaparsec.Char.Lexer as L (space, lexeme, skipLineComment)
+import           Data.Void                  (Void)
+import           Text.Megaparsec            (Parsec, anySingle, anySingleBut,
+                                             empty, eof, many, notFollowedBy,
+                                             satisfy, skipCount, some, try,
+                                             (<|>))
+import           Text.Megaparsec.Char       (alphaNumChar, char, digitChar,
+                                             letterChar, space1, spaceChar,
+                                             string)
+import qualified Text.Megaparsec.Char.Lexer as L (lexeme, skipLineComment,
+                                                  space)
 
 type Parser = Parsec Void String
 -- Parsec ErrT StreamT RetT
@@ -21,7 +26,10 @@ type Parser = Parsec Void String
 newtype Variable = Variable String
   deriving Show
 
-data Expr = VariableAccess Variable | SingleQuotedText String
+data Expr
+  = VariableAccess Variable
+  | SingleQuotedText String
+  | DoubleQuotedText String
   deriving Show
 
 data Statement = Assignment Variable [Expr]
@@ -32,7 +40,7 @@ newtype Sequence = Sequence [Statement]
 
 customVariable :: Parser Variable
 customVariable = do
-  first <- letterChar
+  first <- letterChar <|> char '_'
   rest  <- many (alphaNumChar <|> char '_')
   return $ Variable (first:rest)
 
@@ -41,6 +49,18 @@ argVariable = Variable <$> some digitChar
 
 variable :: Parser Variable
 variable = customVariable <|> argVariable
+
+escapableChars :: [Char]
+escapableChars = "$\\\""
+
+doubleQuotedText :: Parser Expr
+doubleQuotedText = do
+  _   <- char '\"'
+  res <- many $ try $
+    notFollowedBy (char '"') >>
+    ((char '\\' >> anyCharOf escapableChars) <|> anySingle)
+  _   <- char '\"'
+  return $ DoubleQuotedText res
 
 singleQuotedText :: Parser Expr
 singleQuotedText = do
@@ -54,11 +74,11 @@ anyCharOf l = satisfy (`elem` l)
 
 plainText :: Parser Expr
 plainText = do
-  let controlChars = "\'()#$"
+  let controlChars = "\'\"()#$"
   res <- some $ try $
          notFollowedBy (anyCharOf controlChars <|> spaceChar) >>
-         ((char '\\' >> anyCharOf "$\\") <|> asciiChar)
-  return $ SingleQuotedText res -- TODO?: \\ -> \
+         ((char '\\' >> anyCharOf escapableChars) <|> anySingle)
+  return $ SingleQuotedText res
 
 variableAccess :: Parser Expr
 variableAccess = do
@@ -68,6 +88,7 @@ variableAccess = do
 expr :: Parser Expr
 expr =  variableAccess
     <|> singleQuotedText
+    <|> doubleQuotedText
     <|> plainText
 
 assignment :: Parser Statement
@@ -78,7 +99,7 @@ assignment = do
   return $ Assignment v l
 
 sc :: Parser ()
-sc = L.space space1 lineCmnt empty
+sc = L.space (space1 <|> skipCount 1 (char ';')) lineCmnt empty
   where
     lineCmnt  = L.skipLineComment "#"
 

@@ -1,2 +1,9 @@
+#!/bin/bash
+set -e
+
 stack build --fast
-stack exec -- mini-shell hw3/test/test.sh $*
+for filename in hw3/test/task2/*.sh; do
+    echo "$filename running..."
+    stack exec -- mini-shell "$filename" $*
+    printf "\n"
+done

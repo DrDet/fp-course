@@ -25,6 +25,7 @@ library
                      , parser-combinators
                      , megaparsec
                      , containers
+                     -- , regex-compat
   default-language:    Haskell2010
 
 executable mini-shell
