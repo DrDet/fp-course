@@ -18,7 +18,7 @@ tested-with:         GHC == 8.0.1
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Task1, Task1Utils
+  exposed-modules:     RandomUtils, Task1, Task2
   ghc-options:         -Wall -Werror
   build-depends:       base >= 4.9 && < 5, vector, parallel, random
   default-language:    Haskell2010
