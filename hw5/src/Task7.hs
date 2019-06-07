@@ -23,7 +23,9 @@ cd targetPath mf curDir@Dir{ contents = l } =
 cd _ _ fileName = pure fileName
 
 ls :: SimpleGetter FS [FilePath]
-ls = to (map name . contents)
+ls = to $ \x -> case x of
+            Dir _ _ -> map name (contents x)
+            _       -> []
 
 file :: FilePath -> Traversal' FS FilePath
 file targetFileName mf curDir@Dir{ contents = l } =
